@@ -128,10 +128,7 @@ while (True):
     if ret == False:
         break
     faces_detected = face_haar_cascade.detectMultiScale(frame, 1.32, 5)
-    cv2.putText(frame, "Place your head in the guide box for better result", (0,10), font, 0.3, fontColor, 1)
-
-    # Guide box
-    cv2.rectangle(frame, (videoWidth//2 , videoHeight//2), (realWidth-videoWidth//2, realHeight-videoHeight//2), (0,0,0), 1)
+    cv2.putText(frame, "Place your head in the center of the box for better result", (0,10), font, 0.3, fontColor, 1)
 
     for (x, y, w, h) in faces_detected:
         if len(sys.argv) != 2:
