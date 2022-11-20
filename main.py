@@ -1,5 +1,4 @@
 import math
-from cv2 import threshold
 import numpy as np
 import cv2
 import sys
