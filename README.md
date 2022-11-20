@@ -15,7 +15,7 @@ To build the webcam heart rate monitor I use cv2 to capture, and distribute webc
 
 For the face emotions model, I use this kaggle data and train it using google colab with TensorFlow. then import it to the script using TensorFlow again and with help of cv2, the app can predict a real-time webcam stream.
 
-Then I combine this two to calculate the stress level of the users using a bit of numpy too.
+Then I combine this two to calculate the stress level of the users using a basic math & numpy.
 ## Challenges we ran into
 
 ## Accomplishments that we're proud of
