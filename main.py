@@ -1,3 +1,4 @@
+from cv2 import threshold
 import numpy as np
 import cv2
 import sys
@@ -46,6 +47,9 @@ lineType = 2
 boxColor = (0, 255, 0)
 boxWeight = 3
 
+bpm_low_threshold = 100
+bpm_high_threshold = 0
+
 #####PARAMETERS END#####
 
 #Gaussian Pyramid
@@ -76,6 +80,36 @@ bpmCalculationFrequency = 15
 bpmBufferIndex = 0
 bpmBufferSize = 10
 bpmBuffer = np.zeros((bpmBufferSize))
+
+# stress variable 0-10
+stress = 0
+def stress_count(bpm_low_threshold, bpm_high_threshold, bpm, emotions_index):
+    emotions = ('angry', 'disgust', 'fear', 'happy', 'neutral', 'surprise', 'sad')
+    global stress
+
+    diff = bpm_high_threshold + bpm_low_threshold
+    baseline = diff / 2 + 1
+    baseline_diff = bpm - baseline
+
+    if emotions_index == 4 : #neutral        
+        if baseline_diff >= 1 and stress != 10:
+            stress += 1
+        if baseline_diff <= 1 and stress != 0:
+            stress -= 1
+
+    elif emotions_index == 0 or emotions_index == 1 or emotions_index == 2 : #angry, disgust, fear
+        if baseline_diff >= 1 and stress != 10:
+            stress += 2
+        if baseline_diff <= 1 and stress != 0:
+            stress -= 1
+
+    elif emotions_index == 3 : #happy
+        if baseline_diff >= 1 and stress != 10:
+            stress += 1
+        if baseline_diff <= 1 and stress != 0:
+            stress -= 2
+
+    return baseline, stress
 
 
 #####CORE START#####
@@ -126,7 +160,7 @@ while (True):
         img_pixels /= 255
         predictions = model.predict(img_pixels)
         max_index = np.argmax(predictions[0])
-        emotions = ('angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral')
+        emotions = ('angry', 'disgust', 'fear', 'happy', 'neutral', 'surprise', 'sad')
         predicted_emotion = emotions[max_index]
 
         # Reconstruct Resulting Frame
@@ -140,6 +174,15 @@ while (True):
         if i > bpmBufferSize:
             cv2.putText(frame, "BPM     : %d" % bpmBuffer.mean(), bpmTextLocation , font, fontScale, fontColor, lineType)
             cv2.putText(frame, "Emotions: %s" % predicted_emotion, emotionsTextLocation , font, fontScale, fontColor, lineType)
+            
+            bpm = int(bpmBuffer.mean())
+
+            if bpm < bpm_low_threshold :
+                bpm_low_threshold = bpm
+            if bpm > bpm_high_threshold :
+                bpm_high_threshold = bpm
+            
+            print(stress_count(bpm_low_threshold, bpm_high_threshold, bpmBuffer.mean(), max_index))
         else:
             cv2.putText(frame, "Calculating ", emotionsTextLocation, font, fontScale, fontColor, lineType)
 
