@@ -1,3 +1,4 @@
+import math
 from cv2 import threshold
 import numpy as np
 import cv2
@@ -83,33 +84,40 @@ bpmBuffer = np.zeros((bpmBufferSize))
 
 # stress variable 0-10
 stress = 0
-def stress_count(bpm_low_threshold, bpm_high_threshold, bpm, emotions_index):
+bpm_list = []
+def stress_count(bpm, emotions_index):
     emotions = ('angry', 'disgust', 'fear', 'happy', 'neutral', 'surprise', 'sad')
     global stress
+    global bpm_list
 
-    diff = bpm_high_threshold + bpm_low_threshold
-    baseline = diff / 2 + 1
-    baseline_diff = bpm - baseline
+    bpm_list.append(bpm)
+    mean = np.mean(bpm_list)
+    mean_diff = math.floor(bpm-mean)
+    # diff = bpm_high_threshold + bpm_low_threshold
+    # baseline = diff / 2 + 1
+    # baseline_diff = bpm - baseline
 
     if emotions_index == 4 : #neutral        
-        if baseline_diff >= 1 and stress != 10:
-            stress += 1
-        if baseline_diff <= 1 and stress != 0:
-            stress -= 1
+        stress = mean_diff
+        if mean_diff > 10: 
+            stress = 10
+        if mean_diff < 0 :
+            stress = 0 
 
     elif emotions_index == 0 or emotions_index == 1 or emotions_index == 2 : #angry, disgust, fear
-        if baseline_diff >= 1 and stress != 10:
-            stress += 2
-        if baseline_diff <= 1 and stress != 0:
-            stress -= 1
+        stress = 2 * mean_diff
+        if mean_diff > 10: 
+            stress = 10
+        if mean_diff < 0 :
+            stress = 0 
 
     elif emotions_index == 3 : #happy
-        if baseline_diff >= 1 and stress != 10:
-            stress += 1
-        if baseline_diff <= 1 and stress != 0:
-            stress -= 2
-
-    return baseline, stress
+        stress = 0.5 * mean_diff
+        if mean_diff > 10: 
+            stress = 10
+        if mean_diff < 0 :
+            stress = 0 
+    return stress
 
 
 #####CORE START#####
@@ -169,12 +177,15 @@ while (True):
         outputFrame = cv2.convertScaleAbs(outputFrame)
         bufferIndex = (bufferIndex + 1) % bufferSize
         frame[videoHeight//2:realHeight-videoHeight//2, videoWidth//2:realWidth-videoWidth//2, :] = outputFrame
-        bpmTextLocation = (int(x), int(y-20))
-        emotionsTextLocation = (int(x), int(y-5))
+
+        bpmTextLocation = (int(x), int(y-35))
+        emotionsTextLocation = (int(x), int(y-20))
+        stressTextLocation = (int(x), int(y-5))
+        
         if i > bpmBufferSize:
             cv2.putText(frame, "BPM     : %d" % bpmBuffer.mean(), bpmTextLocation , font, fontScale, fontColor, lineType)
             cv2.putText(frame, "Emotions: %s" % predicted_emotion, emotionsTextLocation , font, fontScale, fontColor, lineType)
-            
+    
             bpm = int(bpmBuffer.mean())
 
             if bpm < bpm_low_threshold :
@@ -182,14 +193,23 @@ while (True):
             if bpm > bpm_high_threshold :
                 bpm_high_threshold = bpm
             
-            print(stress_count(bpm_low_threshold, bpm_high_threshold, bpmBuffer.mean(), max_index))
-        else:
-            cv2.putText(frame, "Calculating ", emotionsTextLocation, font, fontScale, fontColor, lineType)
+            stress = stress_count(bpmBuffer.mean(), max_index)
 
+            cv2.putText(frame, "Low :%d" % bpm_low_threshold, (0,25), font, 0.4, fontColor, 1)
+            cv2.putText(frame, "High :%d" % bpm_high_threshold, (0,40), font, 0.4, fontColor, 1)
+            if stress < 5:
+                cv2.putText(frame, "Stress :%d" % stress, stressTextLocation, font, fontScale, fontColor, lineType)
+            elif stress < 7 :
+                cv2.putText(frame, "Stress :%d" % stress, stressTextLocation, font, fontScale, (0,255,255), lineType)
+            else : 
+                cv2.putText(frame, "Stress :%d" % stress, stressTextLocation, font, fontScale, (0,0,255), lineType)
+                cv2.putText(frame, "You should take a rest!", (0,55), font, fontScale, (0,0,255), lineType)
+        else:
+            cv2.putText(frame, "Calculating ", stressTextLocation, font, fontScale, fontColor, lineType)
 
     if len(sys.argv) != 2:
         
-        cv2.imshow("Webcam Heart Rate Monitor", frame)
+        cv2.imshow("Webcam Stress Meter", frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
