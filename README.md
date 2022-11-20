@@ -13,7 +13,7 @@ It calculates your heart rate only using your webcam and combines it using the f
 ## How we built it
 To build the webcam heart rate monitor I use cv2 to capture, and distribute webcam data, some filters, and to track our faces. Then a numpy gives some calculation to the tensor so that the app can measure the light change in our skin and extract it into a heart rate.
 
-For the face emotions model, I use this kaggle data and train it using google colab with TensorFlow. then import it to the script using TensorFlow again and with help of cv2, the app can predict a real-time webcam stream.
+For the face emotions model, I use this [kaggle data](https://www.kaggle.com/datasets/jonathanoheix/face-expression-recognition-dataset) and train it using google colab with TensorFlow. then import it to the script using TensorFlow again and with help of cv2, the app can predict a real-time webcam stream.
 
 Then I combine this two to calculate the stress level of the users using a basic math & numpy.
 ## Challenges we ran into
