@@ -17,10 +17,11 @@ For the face emotions model, I use this kaggle data and train it using google co
 
 Then I combine this two to calculate the stress level of the users using a basic math & numpy.
 ## Challenges we ran into
+it's challenging to integrate the heart rate app and face emotions app, especially when I have to make a function to determine the stress level, but it is all done now, and it's working :))
 
 ## Accomplishments that we're proud of
-
-## What we learned
+complete this app only for 24 hours
 
 ## What's next for Webcam Stress Meter
+Create an exe installation package for this app, or maybe publish this app as a mobile app in App Store / Play Store 
 
