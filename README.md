@@ -8,7 +8,7 @@ And secondly, there is an article where it states that our heart rate is related
 
 
 ## What it does
-It calculates your heart rate only using your webcam and combines it using the face emotions model resulting in a **calculation for the stress meter**.
+It calculates your heart rate only using your webcam and combines it using the face emotions model resulting in a **calculation for the stress meter**. You can use it while you working/studying so that when your stress meter is reaching a high level, the app will alert you and recommend you to take a rest.
 
 ## How we built it
 To build the webcam heart rate monitor I use cv2 to capture, and distribute webcam data, some filters, and to track our faces. Then a numpy gives some calculation to the tensor so that the app can measure the light change in our skin and extract it into a heart rate.
